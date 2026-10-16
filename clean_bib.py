@@ -116,9 +116,13 @@ def process_bib_file(input_file: str, output_file: str, remove_titles: bool = Fa
     library = bibtexparser.parse_file(input_file)
 
     for entry in library.entries:
+        # Bibtexparser entries store entry type (e.g., 'article', 'misc', 'book')
+        # Check both attributes for compatibility across bibtexparser versions
+        entry_type = getattr(entry, "entry_type", getattr(entry, "ENTRYTYPE", "")).lower()
+        
         # Title processing
         if "title" in entry:
-            if remove_titles:
+            if remove_titles and entry_type == "article":
                 del entry["title"]
             else:
                 entry["title"] = fix_title_casing(entry["title"])
